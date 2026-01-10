@@ -24,10 +24,12 @@ const App = () => {
   //   }
   // ];
 
+  /*
   const getAsyncStories = () =>
     new Promise((resolve) => 
       setTimeout(() => resolve({ data: { stories: initialStories } }), 2000)
   );
+  */
 
   const storiesReducer = (state, action) => {
     switch (action.type) {
@@ -67,9 +69,11 @@ const App = () => {
   );
 
   React.useEffect(() => {
+    if (!searchTerm) return;
+
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    fetch(`${ API_ENDPOINT }react`)
+    fetch(`${ API_ENDPOINT }${searchTerm}`)
       .then((response) => response.json())
       .then(result => { 
         dispatchStories({type: 'STORIES_FETCH_SUCCESS', payload: result.hits});
@@ -77,7 +81,7 @@ const App = () => {
       .catch(()=> { 
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
       });
-  }, []);
+  }, [searchTerm]);
 
   const handleRemoveStory = (item) => {
     dispatchStories({type: 'REMOVE_STORY', payload: item });
@@ -139,9 +143,8 @@ const App = () => {
       <InputWithLabel
         id='search'
         value={searchTerm}
-        onInputChange={handleSearch}
-      >
-        <strong>Search :</strong>
+        onInputChange={handleSearch}>
+          <strong>Search :</strong>
       </InputWithLabel>
       <p>
         Searching for <strong>{search}</strong>
@@ -164,7 +167,7 @@ const App = () => {
       { stories.isLoading ? ( 
         <p>Loading...</p>
       ) : ( 
-        <List list={searchedStories} onRemoveItem={handleRemoveStory} /> 
+        <List list={stories.data} onRemoveItem={handleRemoveStory} /> 
       )}
     </>
   )
