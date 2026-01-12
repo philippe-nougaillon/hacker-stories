@@ -68,12 +68,22 @@ const App = () => {
     localStorage.getItem('search') || ''
   );
 
+  const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`)
+
+  const handleSearchInput = (event) => {
+    setSearchTerm(event.target.value);
+  }
+
+  const handleSearchSubmit = () => {
+    setUrl(`${API_ENDPOINT}${searchTerm}`);
+  }
+
   const handleFetchStories = React.useCallback(() => {
     if (!searchTerm) return;
 
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    fetch(`${ API_ENDPOINT }${searchTerm}`)
+    fetch(url)
       .then((response) => response.json())
       .then(result => { 
         dispatchStories({type: 'STORIES_FETCH_SUCCESS', payload: result.hits});
@@ -81,7 +91,7 @@ const App = () => {
       .catch(()=> { 
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
       });
-  }, [searchTerm]);
+  }, [url]);
 
   React.useEffect(() => {
     handleFetchStories();
@@ -147,9 +157,15 @@ const App = () => {
       <InputWithLabel
         id='search'
         value={searchTerm}
-        onInputChange={handleSearch}>
+        onInputChange={handleSearchInput}>
           <strong>Search :</strong>
       </InputWithLabel>
+      <button 
+        type='button'
+        disabled={!searchTerm}
+        onClick={handleSearchSubmit}
+      >
+        Submit</button>
       <p>
         Searching for <strong>{search}</strong>
       </p>
