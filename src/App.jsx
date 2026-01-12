@@ -1,35 +1,10 @@
 import './App.css'
 import * as React from 'react';
+import axios from 'axios';
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
 const App = () => {
-
-  // const initialStories = [
-  //   {
-  //     title: 'React',
-  //     url: 'https://react.dev/',
-  //     author: 'Jordan Wake',
-  //     num_comments: 3,
-  //     points: 4,
-  //     objectID: 0,
-  //   },
-  //   {
-  //     title: 'Redux',
-  //     url: 'https://redux.js.org/',
-  //     author: 'Dan Abramov',
-  //     num_comments: 2,
-  //     points: 5,
-  //     objectID: 1,
-  //   }
-  // ];
-
-  /*
-  const getAsyncStories = () =>
-    new Promise((resolve) => 
-      setTimeout(() => resolve({ data: { stories: initialStories } }), 2000)
-  );
-  */
 
   const storiesReducer = (state, action) => {
     switch (action.type) {
@@ -78,19 +53,14 @@ const App = () => {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
   }
 
-  const handleFetchStories = React.useCallback(() => {
-    if (!searchTerm) return;
-
+  const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
-
-    fetch(url)
-      .then((response) => response.json())
-      .then(result => { 
-        dispatchStories({type: 'STORIES_FETCH_SUCCESS', payload: result.hits});
-      })
-      .catch(()=> { 
-        dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
-      });
+    try {
+      const result = await axios.get(url);
+      dispatchStories({type: 'STORIES_FETCH_SUCCESS', payload: result.data.hits});
+    } catch (error) {
+      dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
+    }
   }, [url]);
 
   React.useEffect(() => {
