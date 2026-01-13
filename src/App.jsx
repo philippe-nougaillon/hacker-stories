@@ -49,9 +49,9 @@ const App = () => {
     setSearchTerm(event.target.value);
   }
 
-  const handleSearchSubmit = (event) => {
+  const searchAction = (event) => {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
-    event.preventDefault();
+    // event.preventDefault();
   }
 
   const handleFetchStories = React.useCallback(async () => {
@@ -126,9 +126,9 @@ const App = () => {
   const SearchForm = ({
     searchTerm, 
     onSearchInput,
-    onSearchSubmit,
+    searchAction,
   }) => (
-    <form onSubmit={handleSearchSubmit}>
+    <form action={searchAction}>
       <InputWithLabel
         id='search'
         value={searchTerm}
@@ -155,7 +155,7 @@ const App = () => {
       <SearchForm 
         searchTerm={searchTerm} 
         onSearchInput={handleSearchInput} 
-        onSearchSubmit={handleSearchSubmit}
+        searchAction={searchAction}
       />
       
       <hr />
