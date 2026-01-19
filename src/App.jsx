@@ -48,11 +48,6 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const searchAction = (event) => {
-    setUrl(`${API_ENDPOINT}${searchTerm}`);
-    // event.preventDefault();
-  };
-
   const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
     try {
@@ -67,9 +62,10 @@ const App = () => {
     dispatchStories({ type: 'REMOVE_STORY', payload: item });
   };
 
-  const searchedStories = stories.data.filter((story) =>
-    story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const searchAction = (event) => {
+    setUrl(`${API_ENDPOINT}${searchTerm}`);
+    // event.preventDefault();
+  };
 
   React.useEffect(() => {
     handleFetchStories();
