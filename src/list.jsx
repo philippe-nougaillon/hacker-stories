@@ -1,24 +1,81 @@
-const List = ({ list, onRemoveItem }) => 
-    <ul>
-        <li style={{ display: 'flex' }}>
-            <span style={{ width: '40%' }}>Title</span>
-            <span style={{ width: '30%' }}>Author</span>
-            <span style={{ width: '10%' }}>Comments</span>
-            <span style={{ width: '10%' }}>Points</span>
-            <span style={{ width: '10%' }}>Actions</span>
-        </li>
-        <br></br>
-        {list.map((item) => (
-            <Item
-                key={item.objectID}
-                item={item}
-                onRemoveItem={onRemoveItem}
-            />
-        ))}
-    </ul>
+import * as React from 'react';
+import { sortBy } from 'lodash';
+
+const SORTS = {
+    NONE: (list) => list,
+    TITLE: (list) => sortBy(list, 'title'),
+    AUTHOR: (list) => sortBy(list, 'author'),
+    COMMENT: (list) => sortBy(list, 'num_comments').reverse(),
+    POINT: (list) => sortBy(list, 'points').reverse(),
+
+};
+
+const List = ({ list, onRemoveItem }) => {
+    const [sort, setSort] = React.useState('NONE');
+
+    const handleSort = (sortKey) => {
+        setSort(sortKey);
+    }
+
+    const sortFunction = SORTS[sort];
+    const sortedList = sortFunction(list);
+
+    return (
+        <ul>
+            <li>
+                <span>
+                    <button type="button" onClick={() => handleSort('TITLE')}>
+                        Title
+                    </button>
+                </span>
+                <span>
+                    <button type="button" onClick={() => handleSort('AUTHOR')}>
+                        Author
+                    </button>
+                </span>
+                <span>
+                    <button type="button" onClick={() => handleSort('COMMENT')}>
+                        Comments
+                    </button>
+                </span>
+                <span>
+                    <button type="button" onClick={() => handleSort('POINT')}>
+                        Points
+                    </button>
+                </span>
+            </li>
+            <br></br>
+            {sortedList.map((item) => (
+                <Item
+                    key={item.objectID}
+                    item={item}
+                    onRemoveItem={onRemoveItem}
+                />
+            ))}
+        </ul>
+    );
+};
+
+// <ul>
+//     <li style={{ display: 'flex' }}>
+//         <span style={{ width: '40%' }}>Title</span>
+//         <span style={{ width: '30%' }}>Author</span>
+//         <span style={{ width: '10%' }}>Comments</span>
+//         <span style={{ width: '10%' }}>Points</span>
+//         <span style={{ width: '10%' }}>Actions</span>
+//     </li>
+//     <br></br>
+//     {list.map((item) => (
+//         <Item
+//             key={item.objectID}
+//             item={item}
+//             onRemoveItem={onRemoveItem}
+//         />
+//     ))}
+// </ul>
 
 const Item = ({ item, onRemoveItem }) =>
-    <li style={{ display: 'flex'}}>
+    <li style={{ display: 'flex' }}>
         <span style={{ width: '40%' }}>
             <a href={item.url}>{item.title}</a>
         </span>
