@@ -4,6 +4,7 @@ import axios from 'axios';
 import { SearchForm } from './components/search-form';
 import { List } from './list';
 import { LastSearches } from './components/last-searches';
+import { storiesReducer} from './reducers/stories';
 
 const API_BASE      = 'https://hn.algolia.com/api/v1';
 const API_SEARCH    = '/search';
@@ -37,48 +38,9 @@ const getLastSearches = (urls) =>
 
 const App = () => {
 
-  const storiesReducer = (state, action) => {
-    switch (action.type) {
-      case 'STORIES_FETCH_INIT':
-        return {
-          ...state,
-          isLoading: true,
-          isError: false,
-        };
-      case 'STORIES_FETCH_SUCCESS':
-        return {
-          ...state,
-          isLoading: false,
-          isError: false,
-          data:
-            action.payload.page === 0
-              ? action.payload.list
-              : state.data.concat(action.payload.list),
-          page: action.payload.page,
-        };
-      case 'STORIES_FETCH_FAILURE':
-        return {
-          ...state,
-          isLoading: false,
-          isError: true,
-        };
-      case 'REMOVE_STORY':
-        return {
-          ...state,
-          data: state.data.filter((story) => action.payload.objectID !== story.objectID),
-        };
-      default:
-        throw new Error();
-    }
-  };
-
   const [stories, dispatchStories] = React.useReducer(storiesReducer, { data: [], page: 0, isLoading: false, isError: false });
   const [searchTerm, setSearchTerm] = React.useState(localStorage.getItem('search') || '');
   const [urls, setUrls] = React.useState([getUrl(searchTerm, 0)]);
-
-  const handleSearchInput = (event) => {
-    setSearchTerm(event.target.value);
-  };
 
   const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
@@ -97,14 +59,20 @@ const App = () => {
     }
   }, [urls]);
 
-  const handleRemoveStory = (item) => {
-    dispatchStories({ type: 'REMOVE_STORY', payload: item });
+  const handleSearchInput = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const searchAction = () => {
+    handleSearch(searchTerm, 0);
   };
 
   const handleSearch = (searchTerm, page) => {
     const url = getUrl(searchTerm, page);
     setUrls(urls.concat(url));
   };
+
+  const lastSearches = getLastSearches(urls);
 
   const handleLastSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
@@ -117,11 +85,9 @@ const App = () => {
     handleSearch(searchTerm, stories.page + 1);
   };
 
-  const searchAction = () => {
-    handleSearch(searchTerm, 0);
+  const handleRemoveStory = (item) => {
+    dispatchStories({ type: 'REMOVE_STORY', payload: item });
   };
-
-  const lastSearches = getLastSearches(urls);
 
   React.useEffect(() => {
     handleFetchStories();
