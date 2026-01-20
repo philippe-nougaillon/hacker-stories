@@ -5,12 +5,29 @@ import axios from 'axios';
 
 import { SearchForm } from './search-form';
 import { List } from './list';
+import { LastSearches } from './last-searches';
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 const extractSearchTerm = (url) => url.replace(API_ENDPOINT, '');
-//const getLastSearches = (urls) => urls.slice(-5).map((url) => extractSearchTerm(url));
-const getLastSearches = (urls) => urls.slice(-5).map(extractSearchTerm);
 const getUrl = (searchTerm) => `${API_ENDPOINT}${searchTerm}`;
+
+const getLastSearches = (urls) => 
+  urls.reduce((result, url, index) => {
+    const searchTerm = extractSearchTerm(url);
+    if (index === 0) {
+      return result.concat(searchTerm);
+    }
+
+    const previousSearchTerm = result[result.length - 1];
+
+    if (searchTerm === previousSearchTerm) {
+      return result;
+    } else {
+      return result.concat(searchTerm);
+    }
+  }, [])
+  .slice(-6)
+  .slice(0, -1);
 
 const App = () => {
 
@@ -74,14 +91,11 @@ const App = () => {
   };
 
   const handleLastSearch = (searchTerm) => {
-    // const url = `${API_ENDPOINT}${searchTerm}`;
-    // setUrls(urls.concat(url));
+    setSearchTerm(searchTerm);
     handleSearch(searchTerm);
   };
 
   const searchAction = (event) => {
-    // const url = `${API_ENDPOINT}${searchTerm}`;
-    // setUrls(urls.concat(url));
     handleSearch(searchTerm);
   };
 
@@ -107,16 +121,11 @@ const App = () => {
         searchAction={searchAction}
       />
 
-      {lastSearches.map((searchTerm, index) => (
-        <button 
-          key={searchTerm + index} 
-          type='button' 
-          onClick={() => handleLastSearch(searchTerm)}
-        >
-          { searchTerm }
-        </button>
-      ))}
-
+      <LastSearches
+        lastSearches={lastSearches}
+        onLastSearch={handleLastSearch}
+      />
+      
       <hr />
 
       {stories.isError && <p>Oops... something went wrong!</p>}
