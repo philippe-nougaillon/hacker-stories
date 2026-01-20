@@ -13,14 +13,10 @@ const PARAM_PAGE = 'page=';
 
 const getUrl = (searchTerm, page) => `${API_BASE}${API_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`;
 
-const extractSearchTerm = (url) => {
-  console.log('URL => ' + url);
-
+const extractSearchTerm = (url) => 
   url
     .substring(url.lastIndexOf('?') + 1, url.lastIndexOf('&'))
     .replace(PARAM_SEARCH, '');
-
-}
 
 const getLastSearches = (urls) => 
   urls.reduce((result, url, index) => {
@@ -156,15 +152,15 @@ const App = () => {
 
       {stories.isError && <p>Oops... something went wrong!</p>}
 
+      <List list={stories.data} onRemoveItem={handleRemoveStory} />
+
       {stories.isLoading ? (
         <p>Loading...</p>
       ) : (
-        <List list={stories.data} onRemoveItem={handleRemoveStory} />
-      )}
-
-      <button type='button' onClick={handleMore}>
-        More
-      </button>
+        <button type='button' onClick={handleMore}>
+          More
+        </button>
+      )}  
     </>
   )
 };
