@@ -7,7 +7,10 @@ import { SearchForm } from './search-form';
 import { List } from './list';
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
-const getLastSearches = (urls) => urls.slice(-5);
+const extractSearchTerm = (url) => url.replace(API_ENDPOINT, '');
+//const getLastSearches = (urls) => urls.slice(-5).map((url) => extractSearchTerm(url));
+const getLastSearches = (urls) => urls.slice(-5).map(extractSearchTerm);
+const getUrl = (searchTerm) => `${API_ENDPOINT}${searchTerm}`;
 
 const App = () => {
 
@@ -44,7 +47,7 @@ const App = () => {
 
   const [stories, dispatchStories] = React.useReducer(storiesReducer, { data: [], isLoading: false, isError: false });
   const [searchTerm, setSearchTerm] = React.useState(localStorage.getItem('search') || '');
-  const [urls, setUrls] = React.useState([`${API_ENDPOINT}${searchTerm}`]);
+  const [urls, setUrls] = React.useState([getUrl(searchTerm)]);
 
   const handleSearchInput = (event) => {
     setSearchTerm(event.target.value);
@@ -65,16 +68,25 @@ const App = () => {
     dispatchStories({ type: 'REMOVE_STORY', payload: item });
   };
 
-  const handleLastSearch = (url) => {
-    //
+  const handleSearch = (searchTerm) => {
+    const url = getUrl(searchTerm);
+    setUrls(urls.concat(url));
+  };
+
+  const handleLastSearch = (searchTerm) => {
+    // const url = `${API_ENDPOINT}${searchTerm}`;
+    // setUrls(urls.concat(url));
+    handleSearch(searchTerm);
+  };
+
+  const searchAction = (event) => {
+    // const url = `${API_ENDPOINT}${searchTerm}`;
+    // setUrls(urls.concat(url));
+    handleSearch(searchTerm);
   };
 
   const lastSearches = getLastSearches(urls);
 
-  const searchAction = (event) => {
-    const url = `${API_ENDPOINT}${searchTerm}`;
-    setUrls(urls.concat(url));
-  };
 
   React.useEffect(() => {
     handleFetchStories();
@@ -95,11 +107,15 @@ const App = () => {
         searchAction={searchAction}
       />
 
-      {lastSearches.map((url) => (
-        <button key={url} type='button' onClick={() => handleLastSearch(url)}>
-          { url }
+      {lastSearches.map((searchTerm, index) => (
+        <button 
+          key={searchTerm + index} 
+          type='button' 
+          onClick={() => handleLastSearch(searchTerm)}
+        >
+          { searchTerm }
         </button>
-      ))};
+      ))}
 
       <hr />
 
