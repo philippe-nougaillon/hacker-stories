@@ -7,6 +7,7 @@ import { SearchForm } from './search-form';
 import { List } from './list';
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+const getLastSearches = (urls) => urls.slice(-5);
 
 const App = () => {
 
@@ -43,7 +44,7 @@ const App = () => {
 
   const [stories, dispatchStories] = React.useReducer(storiesReducer, { data: [], isLoading: false, isError: false });
   const [searchTerm, setSearchTerm] = React.useState(localStorage.getItem('search') || '');
-  const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`)
+  const [urls, setUrls] = React.useState([`${API_ENDPOINT}${searchTerm}`]);
 
   const handleSearchInput = (event) => {
     setSearchTerm(event.target.value);
@@ -52,20 +53,27 @@ const App = () => {
   const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
     try {
-      const result = await axios.get(url);
+      const lastUrl = urls[urls.length - 1];
+      const result = await axios.get(lastUrl);
       dispatchStories({ type: 'STORIES_FETCH_SUCCESS', payload: result.data.hits });
     } catch (error) {
       dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
     }
-  }, [url]);
+  }, [urls]);
 
   const handleRemoveStory = (item) => {
     dispatchStories({ type: 'REMOVE_STORY', payload: item });
   };
 
+  const handleLastSearch = (url) => {
+    //
+  };
+
+  const lastSearches = getLastSearches(urls);
+
   const searchAction = (event) => {
-    setUrl(`${API_ENDPOINT}${searchTerm}`);
-    // event.preventDefault();
+    const url = `${API_ENDPOINT}${searchTerm}`;
+    setUrls(urls.concat(url));
   };
 
   React.useEffect(() => {
@@ -86,6 +94,12 @@ const App = () => {
         onSearchInput={handleSearchInput}
         searchAction={searchAction}
       />
+
+      {lastSearches.map((url) => (
+        <button key={url} type='button' onClick={() => handleLastSearch(url)}>
+          { url }
+        </button>
+      ))};
 
       <hr />
 
