@@ -2,7 +2,7 @@ import './App.css'
 import * as React from 'react';
 import axios from 'axios';
 import { SearchForm } from './components/search-form';
-import { List } from './list';
+import { List } from './components/list';
 import { LastSearches } from './components/last-searches';
 import { storiesReducer} from './reducers/stories';
 
