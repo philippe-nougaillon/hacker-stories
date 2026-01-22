@@ -44,14 +44,17 @@ const App = () => {
   const [urls, setUrls] = React.useState([getUrl(searchTerm, 0)]);
   const lastSearches = getLastSearches(urls);
 
-  
+  const handleSearch = (searchTerm, page) => {
+    const url = getUrl(searchTerm, page);
+    setUrls(urls.concat(url));
+  };
+
   const handleSearchInput = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  const handleSearch = (searchTerm, page) => {
-    const url = getUrl(searchTerm, page);
-    setUrls(urls.concat(url));
+  const searchAction = () => {
+    handleSearch(searchTerm, 0);
   };
 
   const handleLastSearch = (searchTerm) => {
@@ -59,10 +62,7 @@ const App = () => {
     handleSearch(searchTerm, 0);
   };
 
-  const searchAction = () => {
-    handleSearch(searchTerm, 0);
-  };
-
+  
   const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
     try {
